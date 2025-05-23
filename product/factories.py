@@ -5,13 +5,14 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('word')
     slug = factory.Faker('slug')
     description = factory.Faker('text', max_nb_chars=500)
-    active = True
+    active = factory.Iterator([True, False])
 
     class Meta:
         model = Category
 
 class ProductFactory(factory.django.DjangoModelFactory):
     price = factory.Faker('random_int', min=1, max=1000)
+    category = factory.LazyAttribute(CategoryFactory)
     title = factory.Faker('word')
     
     @factory.post_generation
