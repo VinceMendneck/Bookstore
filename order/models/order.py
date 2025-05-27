@@ -13,3 +13,6 @@ class Order(models.Model):
     
     def __str__(self):
         return f"Order for {self.user.username}"
+    
+    class Meta:
+        ordering = ['id']
