@@ -1,7 +1,7 @@
 # `python-base` sets up all our shared environment variables
 FROM python:3.13-slim as python-base
 
-    # python
+# python
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
     PYTHONDONTWRITEBYTECODE=1 \
@@ -13,7 +13,7 @@ ENV PYTHONUNBUFFERED=1 \
     \
     # poetry
     # https://python-poetry.org/docs/configuration/#using-environment-variables
-    POETRY_VERSION=2.1.3 \
+    POETRY_VERSION=1.8.3 \
     # make poetry install to this location
     POETRY_HOME="/opt/poetry" \
     # make poetry create the virtual environment in the project's root
@@ -37,30 +37,24 @@ RUN apt-get update \
         # deps for building python deps
         build-essential \
         zlib1g-dev \
-        libgit2-dev
+        libgit2-dev \
+        libpq-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
-RUN curl -sSL https://install.python-poetry.org | python
+RUN curl -sSL https://install.python-poetry.org | python -
 
-# install postgres dependencies inside of Docker
-RUN apt-get update \
-    && apt-get -y install libpq-dev gcc \
-    && pip install psycopg2
-
-# copy project requirement files here to ensure they will be cached.
+# copy project requirement files here to ensure they will be cached
 WORKDIR $PYSETUP_PATH
 COPY pyproject.toml poetry.lock ./
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
-RUN poetry install --only main --no-root
-
-# quicker install as runtime deps are already installed
-RUN poetry install --no-root
+RUN poetry install
 
 WORKDIR /app
-
 COPY . /app/
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
