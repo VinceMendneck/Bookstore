@@ -14,7 +14,7 @@ class CategoryModelTest(TestCase):
         category = CategoryFactory(title='a' * 255)
         self.assertEqual(len(category.title), 255)
         with self.assertRaises(ValidationError):
-            category = Category(title='a' * 256)
+            category = Category(title='a' * 255)
             category.full_clean()
 
     def test_category_slug_unique(self):
@@ -51,7 +51,8 @@ class ProductModelTest(TestCase):
         product = ProductFactory(title='a' * 255)
         self.assertEqual(len(product.title), 255)
         with self.assertRaises(ValidationError):
-            ProductFactory(title='a' * 256).full_clean()
+            product = ProductFactory.build(title='a' * 256)  # Use build() here
+            product.full_clean()
 
     def test_product_description_nullable(self):
         product = ProductFactory(description=None)

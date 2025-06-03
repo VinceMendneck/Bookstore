@@ -1,0 +1,46 @@
+name: Python application
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.13"]
+        poetry-version: ["1.8.3"]
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache Poetry dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pypoetry
+        key: ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-${{ matrix.python-version }}-${{ matrix.poetry-version }}-
+
+    - name: Install Poetry ${{ matrix.poetry-version }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry==${{ matrix.poetry-version }}
+
+    - name: View Poetry --help
+      run: poetry --help
+
+    - name: Install dependencies
+      run: poetry install --no-interaction --no-ansi
+
+    - name: Run Django migrations
+      run: poetry run python manage.py migrate
+
+    - name: Run tests
+      run: poetry run python manage.py test
