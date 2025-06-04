@@ -78,7 +78,6 @@ DATABASES = {
         'PORT': config('SQL_PORT', default=''),
     }
 }
-# Override with DATABASE_URL if provided (for Render)
 if 'DATABASE_URL' in os.environ:
     DATABASES['default'] = dj_database_url.config(default=config('DATABASE_URL'))
 

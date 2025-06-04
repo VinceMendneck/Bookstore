@@ -23,8 +23,8 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
-        value: False
+        value: True
       - key: DJANGO_ALLOWED_HOSTS
-        value: bookstore.onrender.com
+        value: bookstore-hs26.onrender.com 
       - key: PYTHON_VERSION
         value: 3.12.7
